@@ -30,20 +30,24 @@ func merge(left, right []int) (results []int){
   return results
 }
 
-func mergeSort(values []int, outChan chan []int) {
+func mergeSort(values []int, outChan chan []int) (results []int){
   length := len(values)
   middle := length / 2
   if length <= 1 {
-    outChan <- values
+    if outChan != nil {
+      outChan <- values
+    }
+    return values
   }
-  leftChan := make(chan []int)
   rightChan := make(chan []int)
-  go mergeSort(values[:middle], leftChan)
   go mergeSort(values[middle:], rightChan)
-  left, right := <-leftChan, <-rightChan
-  results := merge(left, right)
-  outChan <- results
-  return
+  left := mergeSort(values[:middle], nil)
+  right := <-rightChan
+  results = merge(left, right)
+  if outChan != nil {
+    outChan <- results
+  }
+  return results
 }
 
 func MergeSortP(values []int) {

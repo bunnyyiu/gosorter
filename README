@@ -1,8 +1,6 @@
 Study Go programming using simple sorting.
 
-The parallel mergesort (mergesortp) run very slow compared with the serial version (mergesort)
-and get stuck when writing output to file. Look like I use goroutines in a wrong way ...
-Should I parallel it in the merge function?
+The parallel mergesort (mergesortp) is 10 times slower compared with the serial version (mergesort).
 
 to build:
 export GOPATH=`pwd`
