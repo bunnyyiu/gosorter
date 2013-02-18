@@ -1,0 +1,25 @@
+Study Go programming using simple sorting.
+
+The parallel mergesort (mergesortp) run very slow compared with the serial version (mergesort)
+and get stuck when writing output to file. Look like I use goroutines in a wrong way ...
+Should I parallel it in the merge function?
+
+to build:
+export GOPATH=`pwd`
+go build sorter
+go build generator
+go install sorter
+go install generator
+
+to test:
+go test algorithm/qsort
+go test algorithm/mergesort
+go test algorithm/mergesortp
+go test algorithm/bubblesort
+
+to generate random test file with 1000 random number
+(cd bin;./generator -n 1000)
+
+to test the performance [qsort, bubblesort, mergesort, mergesortp]
+(cd bin;./sorter -i unsorted.dat -o sortedmergesort.dat -a mergesort)
+(cd bin;./sorter -i unsorted.dat -o sortedmergesortp.dat -a mergesortp)
