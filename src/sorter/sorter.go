@@ -78,14 +78,17 @@ func writeValues(values []int, outFile string) error {
 }
 
 func init(){
-  flag.StringVar(&inFile, "i", "unsorted.dat", "File contains values for sorting")
-  flag.StringVar(&outFile, "o", "sorted.dat", "File to receive sorted values")
+  flag.StringVar(&inFile, "i", "unsorted.dat",
+      "File contains values for sorting")
+  flag.StringVar(&outFile, "o", "sorted.dat",
+      "File to receive sorted values")
   flag.StringVar(&algorithm, "a", "qsort", "Sort algorithm")
 }
 
 func main() {
   flag.Parse()
-  fmt.Println("inFile = ", inFile, "outFile = ", outFile, "algorithm = ", algorithm)
+  fmt.Println("inFile = ", inFile, "outFile = ", outFile, "algorithm = ",
+      algorithm)
 
   values, err := readValues(inFile)
 
@@ -103,11 +106,13 @@ func main() {
       case "mergesortp2" :
         mergesortp2.MergeSortParallel(values)
       default :{
-        fmt.Println("Sorting algorithm", algorithm, "is either unknow or unsupported.")
+        fmt.Println("Sorting algorithm", algorithm,
+            "is either unknow or unsupported.")
       }
     }
     endTime := time.Now()
-    fmt.Println("The sorting process costs", endTime.Sub(startTime), "to complete")
+    fmt.Println("The sorting process costs", endTime.Sub(startTime),
+        "to complete")
     writeValues(values, outFile)
   } else {
     fmt.Println(err)
