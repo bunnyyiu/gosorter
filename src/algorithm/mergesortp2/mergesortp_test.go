@@ -2,29 +2,31 @@ package mergesortp2
 
 import "testing"
 
-func TestMergeSortP1(t *testing.T) {
+func TestMergeSortParallel1(t *testing.T) {
   values := []int{5, 4, 3, 2, 1}
-  MergeSortP(values)
+  MergeSortParallel(values)
 
-  if values[0] != 1 || values[1] != 2 || values[2] != 3 || values[3] != 4 || values[4] != 5 {
-    t.Error("MergeSortP() failed. Got", values, "Expected 1 2 3 4 5")
+  if values[0] != 1 || values[1] != 2 || values[2] != 3 || values[3] != 4 ||
+     values[4] != 5 {
+    t.Error("MergeSortParallel() failed. Got", values, "Expected 1 2 3 4 5")
   }
 }
 
-func TestMergeSortP2(t *testing.T) {
+func TestMergeSortParallel2(t *testing.T) {
   values := []int{5, 5, 3, 2, 1}
-  MergeSortP(values)
+  MergeSortParallel(values)
 
-  if values[0] != 1 || values[1] != 2 || values[2] != 3 || values[3] != 5 || values[4] != 5 {
-    t.Error("MergeSortP() failed. Got", values, "Expected 1 2 3 5 5")
+  if values[0] != 1 || values[1] != 2 || values[2] != 3 || values[3] != 5 ||
+     values[4] != 5 {
+    t.Error("MergeSortParallel() failed. Got", values, "Expected 1 2 3 5 5")
   }
 }
 
-func TestMergeSortP3(t *testing.T) {
+func TestMergeSortParallel3(t *testing.T) {
   values := []int{5}
-  MergeSortP(values)
+  MergeSortParallel(values)
 
   if values[0] != 5 {
-    t.Error("MergeSortP() failed. Got", values, "Expected 5")
+    t.Error("MergeSortParallel() failed. Got", values, "Expected 5")
   }
 }

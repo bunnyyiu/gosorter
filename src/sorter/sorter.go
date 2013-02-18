@@ -99,9 +99,9 @@ func main() {
       case "mergesort" :
         mergesort.MergeSort(values)
       case "mergesortp" :
-        mergesortp.MergeSortP(values)
+        mergesortp.MergeSortParallel(values)
       case "mergesortp2" :
-        mergesortp2.MergeSortP(values)
+        mergesortp2.MergeSortParallel(values)
       default :{
         fmt.Println("Sorting algorithm", algorithm, "is either unknow or unsupported.")
       }

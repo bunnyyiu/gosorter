@@ -1,12 +1,14 @@
 package mergesortp
 
+/**
+  According to Introduction to Algorithm rev 3
+  This algorithm performance should almost the same as the serial one.
 
-// According to Introduction to Algorithm rev 3
-// This algorithm performance should almost the same as the serial one.
+  But in our experiemt, this one is slower than the serial one 10 times more if
+  GOMAXPROCS = 2.
 
-// But in our experiemt, this one is slower than the serial one 10 times more if GOMAXPROCS = 2.
-
-// ref Introduction to Algorithm, page 798
+  ref Introduction to Algorithm, page 798
+*/
 
 import (
   "os"
@@ -38,7 +40,7 @@ func merge(left, right []int) (results []int){
   return results
 }
 
-func mergeSort(values []int, readyChan chan int) {
+func mergeSortParallel(values []int, readyChan chan int) {
   length := len(values)
   middle := length / 2
   if length <= 1 {
@@ -50,8 +52,8 @@ func mergeSort(values []int, readyChan chan int) {
   syncChan := make(chan int)
   left := values[:middle]
   right := values[middle:]
-  go mergeSort(left, syncChan)
-  mergeSort(right, nil)
+  go mergeSortParallel(left, syncChan)
+  mergeSortParallel(right, nil)
   <-syncChan
   results := merge(left, right)
   copy(values, results)
@@ -61,7 +63,7 @@ func mergeSort(values []int, readyChan chan int) {
   return
 }
 
-func MergeSortP(values []int) {
+func MergeSortParallel(values []int) {
   fmt.Println("using", os.Getenv("GOMAXPROCS"), "CPUs")
-  mergeSort(values, nil)
+  mergeSortParallel(values, nil)
 }
