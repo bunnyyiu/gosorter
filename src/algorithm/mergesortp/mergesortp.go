@@ -1,7 +1,15 @@
 package mergesortp
 
+
+// According to Introduction to Algorithm rev 3
+// This algorithm performance should almost the same as the serial one.
+
+// But in our experiemt, this one is slower than the serial one 10 times more if GOMAXPROCS = 2.
+
+// ref Introduction to Algorithm, page 798
+
 import (
-  "runtime"
+  "os"
   "fmt"
 )
 
@@ -30,32 +38,30 @@ func merge(left, right []int) (results []int){
   return results
 }
 
-func mergeSort(values []int, outChan chan []int) (results []int){
+func mergeSort(values []int, readyChan chan int) {
   length := len(values)
   middle := length / 2
   if length <= 1 {
-    if outChan != nil {
-      outChan <- values
+    if readyChan != nil {
+      readyChan <- 1
     }
-    return values
+    return
   }
-  rightChan := make(chan []int)
-  go mergeSort(values[middle:], rightChan)
-  left := mergeSort(values[:middle], nil)
-  right := <-rightChan
-  results = merge(left, right)
-  if outChan != nil {
-    outChan <- results
+  syncChan := make(chan int)
+  left := values[:middle]
+  right := values[middle:]
+  go mergeSort(left, syncChan)
+  mergeSort(right, nil)
+  <-syncChan
+  results := merge(left, right)
+  copy(values, results)
+  if readyChan != nil {
+    readyChan <- 1
   }
-  return results
+  return
 }
 
 func MergeSortP(values []int) {
-  numCPU := runtime.NumCPU()
-  fmt.Println("usage", numCPU, "CPU")
-  runtime.GOMAXPROCS(numCPU)
-  outChan := make(chan []int)
-  go mergeSort(values, outChan)
-  results := <-outChan
-  copy(values, results)
+  fmt.Println("using", os.Getenv("GOMAXPROCS"), "CPUs")
+  mergeSort(values, nil)
 }

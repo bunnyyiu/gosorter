@@ -1,4 +1,4 @@
-package mergesortp
+package mergesortp2
 
 import "testing"
 

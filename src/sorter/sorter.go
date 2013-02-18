@@ -12,6 +12,7 @@ import (
   "algorithm/qsort"
   "algorithm/mergesort"
   "algorithm/mergesortp"
+  "algorithm/mergesortp2"
 )
 
 var inFile string 
@@ -99,6 +100,8 @@ func main() {
         mergesort.MergeSort(values)
       case "mergesortp" :
         mergesortp.MergeSortP(values)
+      case "mergesortp2" :
+        mergesortp2.MergeSortP(values)
       default :{
         fmt.Println("Sorting algorithm", algorithm, "is either unknow or unsupported.")
       }
