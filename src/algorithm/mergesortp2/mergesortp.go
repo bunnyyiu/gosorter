@@ -15,6 +15,10 @@ import (
   "fmt"
 )
 
+const (
+  cutoff = 8192
+)
+
 func maxInt (x, y int) (result int) {
   if x >= y {
     result = x
@@ -38,8 +42,37 @@ func binarySearch(x int, values []int, left, right int) int{
   return high
 }
 
+func merge(values []int, p1, r1, p2, r2, p3 int, results []int) {
+  dest := p3
+  for p1 < r1 && p2 < r2 {
+    if values[p1] <= values[p2] {
+      results[dest] = values[p1]
+      p1++
+    } else {
+      results[dest] = values[p2]
+      p2++
+    }
+    dest++
+  }
+  for p1 < r1 {
+    results[dest] = values[p1]
+    dest++
+    p1++
+  }
+  for p2 < r2 {
+    results[dest] = values[p2]
+    dest++
+    p2++
+  }
+}
+
 func mergeParallel(values []int, p1, r1, p2, r2 int, results []int, p3 int,
                    outChan chan int) {
+  defer func () {
+    if outChan != nil {
+      outChan <- 1
+    }
+  }()
   n1 := r1 - p1 + 1
   n2 := r2 - p2 + 1
 
@@ -49,9 +82,10 @@ func mergeParallel(values []int, p1, r1, p2, r2 int, results []int, p3 int,
     n1, n2 = n2, n1
   }
   if n1 == 0 {
-    if outChan != nil {
-      outChan <- 1
-    }
+    return
+  }
+  if (n1 + n2) <= cutoff {
+    merge(values, p1, p1 + n1, p2, p2 + n2, p3, results)
     return
   }
   q1 := (p1 + r1) / 2
@@ -62,15 +96,17 @@ func mergeParallel(values []int, p1, r1, p2, r2 int, results []int, p3 int,
   go mergeParallel(values, p1, q1 - 1, p2, q2 - 1, results, p3, childChan)
   mergeParallel(values, q1 + 1, r1, q2, r2, results, q3 + 1, nil)
   <-childChan
-
-  if outChan != nil {
-    outChan <- 1
-  }
   return
 }
 
 func mergeSortParallel(values []int, p, r int, results []int, s int,
                        outChan chan int) {
+  defer func () {
+    if outChan != nil {
+      outChan <- 1
+    }
+  }()
+
   n := r - p + 1
   if n == 1 {
     results[s] = values[p]
@@ -85,9 +121,7 @@ func mergeSortParallel(values []int, p, r int, results []int, s int,
     <-childChan
     mergeParallel(T, 0, q2, q2 + 1, n - 1, results, s, nil)
   }
-  if outChan != nil {
-    outChan <- 1
-  }
+  return
 }
 
 func MergeSortParallel(values []int) {

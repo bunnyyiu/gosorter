@@ -41,12 +41,15 @@ func merge(left, right []int) (results []int){
 }
 
 func mergeSortParallel(values []int, readyChan chan int) {
-  length := len(values)
-  middle := length / 2
-  if length <= 1 {
+  defer func () {
     if readyChan != nil {
       readyChan <- 1
     }
+  }()
+
+  length := len(values)
+  middle := length / 2
+  if length <= 1 {
     return
   }
   syncChan := make(chan int)
@@ -57,9 +60,6 @@ func mergeSortParallel(values []int, readyChan chan int) {
   <-syncChan
   results := merge(left, right)
   copy(values, results)
-  if readyChan != nil {
-    readyChan <- 1
-  }
   return
 }
 
