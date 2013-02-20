@@ -13,6 +13,12 @@ package mergesortp
 import (
   "os"
   "fmt"
+  "runtime"
+  "strconv"
+)
+
+var (
+  GOMAXPROCS = 1
 )
 
 func merge(left, right []int) (results []int){
@@ -52,18 +58,27 @@ func mergeSortParallel(values []int, readyChan chan int) {
   if length <= 1 {
     return
   }
-  syncChan := make(chan int)
   left := values[:middle]
   right := values[middle:]
-  go mergeSortParallel(left, syncChan)
-  mergeSortParallel(right, nil)
-  <-syncChan
+  if runtime.NumGoroutine() < GOMAXPROCS - 1 {
+    syncChan := make(chan int)
+    go mergeSortParallel(left, syncChan)
+    gomergeSortParallel(right, nil)
+    <-syncChan
+  } else {
+    mergeSortParallel(left, nil)
+    mergeSortParallel(right, nil)
+  }
   results := merge(left, right)
   copy(values, results)
   return
 }
 
 func MergeSortParallel(values []int) {
-  fmt.Println("using", os.Getenv("GOMAXPROCS"), "CPUs")
+  envMaxGOProcess := os.Getenv("GOMAXPROCS")
+  if envMaxGOProcess != "" {
+    GOMAXPROCS, _ = strconv.Atoi(envMaxGOProcess)
+  }
+  fmt.Println("using", envMaxGOProcess, "CPUs")
   mergeSortParallel(values, nil)
 }

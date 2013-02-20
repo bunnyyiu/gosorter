@@ -13,10 +13,16 @@ package mergesortp2
 import (
   "os"
   "fmt"
+  "runtime"
+  "strconv"
 )
 
 const (
   cutoff = 8192
+)
+
+var (
+  GOMAXPROCS = 1
 )
 
 func maxInt (x, y int) (result int) {
@@ -93,9 +99,15 @@ func mergeParallel(values []int, p1, r1, p2, r2 int, results []int, p3 int,
   q3 := p3 + (q1 - p1) + (q2 - p2)
   results[q3] = values[q1]
   childChan := make(chan int)
-  go mergeParallel(values, p1, q1 - 1, p2, q2 - 1, results, p3, childChan)
-  mergeParallel(values, q1 + 1, r1, q2, r2, results, q3 + 1, nil)
-  <-childChan
+
+  if runtime.NumGoroutine() < GOMAXPROCS - 1 {
+    go mergeParallel(values[:], p1, q1 - 1, p2, q2 - 1, results[:], p3, childChan)
+    mergeParallel(values, q1 + 1, r1, q2, r2, results, q3 + 1, nil)
+    <-childChan
+  } else {
+    mergeParallel(values, p1, q1 - 1, p2, q2 - 1, results, p3, nil)
+    mergeParallel(values, q1 + 1, r1, q2, r2, results, q3 + 1, nil)
+  }
   return
 }
 
@@ -114,18 +126,26 @@ func mergeSortParallel(values []int, p, r int, results []int, s int,
     T := make([]int, n, n)
     q := (p + r) / 2
     q2 := q - p
-
-    childChan := make(chan int)
-    go mergeSortParallel(values, p, q, T, 0, childChan)
-    mergeSortParallel(values, q + 1, r, T, q2 + 1, nil)
-    <-childChan
+    if runtime.NumGoroutine() < GOMAXPROCS - 1 {
+      childChan := make(chan int)
+      go mergeSortParallel(values[:], p, q, T[:], 0, childChan)
+      mergeSortParallel(values, q + 1, r, T, q2 + 1, nil)
+      <-childChan
+    } else {
+      mergeSortParallel(values, p, q, T, 0, nil)
+      mergeSortParallel(values, q + 1, r, T, q2 + 1, nil)
+    }
     mergeParallel(T, 0, q2, q2 + 1, n - 1, results, s, nil)
   }
   return
 }
 
 func MergeSortParallel(values []int) {
-  fmt.Println("using", os.Getenv("GOMAXPROCS"), "CPUs")
+  envMaxGOProcess := os.Getenv("GOMAXPROCS")
+  if envMaxGOProcess != "" {
+    GOMAXPROCS, _ = strconv.Atoi(envMaxGOProcess)
+  }
+  fmt.Println("using", envMaxGOProcess, "CPUs")
   n := len(values)
   results := make([]int, n, n)
   mergeSortParallel(values, 0, n - 1, results, 0, nil)
